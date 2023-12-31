@@ -66,6 +66,8 @@ UART_BAUD=115200 cargo run --release --example i2c_scan
 
 <b>print_logo, print_u16counter, flip:</b>
 
+<img src="photo/ssd1306.jpg" width="350" height="200" alt="print_logo, print_u16counter, flip"></img>
+
 ```bash
 cargo run --release --example ssd1306_x32_counter
 ```
