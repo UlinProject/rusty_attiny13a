@@ -1,0 +1,12 @@
+[build]
+target = "attiny13a.json"
+
+[target.'cfg(target_arch = "avr")']
+runner = "bash ./runner.sh"
+
+[unstable]
+build-std = ["core"]
+
+[env]
+CPU_FREQUENCY_HZ = "9_600_000"
+UART_BAUD = "115200"

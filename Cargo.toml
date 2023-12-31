@@ -1,0 +1,40 @@
+[package]
+name = "rusty_attiny13a"
+version = "0.1.0"
+authors = ["Denis Kotlyarov <denis2005991@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+test = false
+
+[lib]
+name = "rusty_attiny13a"
+test = false
+bench = false
+
+[dependencies]
+avr-progmem = "0.4.0"
+avrd = "1.0.0"
+
+[profile.dev]
+panic = "abort"
+codegen-units = 1
+debug = false
+lto = true
+opt-level = "z"
+incremental = false
+debug-assertions = false
+overflow-checks = false
+
+strip = false # for cargo bloat
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+debug = false
+lto = true
+opt-level = "z"
+incremental = false
+debug-assertions = false
+overflow-checks = false
+
+strip = true
