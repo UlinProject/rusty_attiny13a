@@ -28,6 +28,10 @@ pub extern "C" fn main() -> ! {
 	
 	/*
 		read the data packet (4 bytes) and output it.
+		
+		TX PB0 // (code supports more than one simultaneous TX). (see serial_write_byte)
+		RX PB1
+		+ Even Parity
 	*/
 	loop {
 		// Due to a strange circumstance, 

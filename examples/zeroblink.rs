@@ -3,16 +3,13 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use rusty_attiny13a::{osccal::loadosccal_from_eeprom, int::NoIntZone, pio::Pio, delay};
+use rusty_attiny13a::{pio::Pio, delay};
 
-// 94bytes
-// cargo run --release --example blink
+// 60bytes
+// cargo run --release --example zeroblink
 
 #[no_mangle]
 pub extern "C" fn main() -> ! {
-	let nointzone = NoIntZone::make();
-	loadosccal_from_eeprom(&nointzone);
-	
 	Pio::PB4.output();
 	loop {
 		Pio::PB4.invert();

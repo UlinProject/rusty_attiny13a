@@ -25,6 +25,8 @@
 // add delay_ns
 // FIX(3):
 // add delay_noinline: 100ns, 1s
+// FIX(4):
+// add delay macros
 
 #[inline(never)]
 pub fn delay_noinline_100ms() {
@@ -80,6 +82,13 @@ pub fn delay_ms<const MS: u64>() {
 #[inline(always)]
 pub fn delay_sec<const SEC: u64>() {
 	Delayer::<SEC, {CPU_FREQUENCY_HZ as u64}, 1>::delay_impl()
+}
+
+#[macro_export]
+macro_rules! delay {
+	[ $e: expr ] => {
+		$crate::delay::delay_ns::<$e>();
+	};
 }
 
 use core::arch::asm;
