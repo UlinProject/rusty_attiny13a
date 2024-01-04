@@ -1,8 +1,6 @@
 
 use core::marker::ConstParamTy;
 
-//const TX_BAUD115200: UartBaudTimeU64 = (SafeUartBaud::B115200).make().make_tx_time().make_u64();
-
 #[derive(ConstParamTy, PartialEq, Eq)]
 #[derive(Clone, Copy)]
 #[repr(u64)]

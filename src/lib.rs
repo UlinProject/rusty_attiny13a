@@ -7,6 +7,7 @@
 #![feature(const_mut_refs)]
 #![allow(named_asm_labels)]
 #![feature(const_trait_impl)]
+#![feature(effects)]
 
 #![no_std]
 extern crate avrd;

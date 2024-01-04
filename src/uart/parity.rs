@@ -1,29 +1,8 @@
 
-pub trait UartParity: Clone + Copy {
-	const IS_EXISTS: usize;
-	
-	fn make_parity<R>(
-		byte: u8,
-		event_add_high_bit: impl FnOnce() -> R, 
-		event_add_low_bit: impl FnOnce() -> R
-	) -> R;
-}
-
+pub trait UartParity: Clone + Copy {}
 
 pub type SkipUartParity = ();
-impl UartParity for SkipUartParity {
-	const IS_EXISTS: usize = 0;
-	
-	#[inline]
-	fn make_parity<R>(
-		_byte: u8,
-		
-		_event_add_high_bit: impl FnOnce() -> R, 
-		_event_add_low_bit: impl FnOnce() -> R
-	) -> R {
-		_event_add_low_bit()
-	}
-}
+impl UartParity for SkipUartParity {}
 
 pub const fn calculate_parity(val: u8) -> u8 {
 	/*let in0: u8 = val;
@@ -54,43 +33,9 @@ pub const fn calculate_parity(val: u8) -> u8 {
 
 #[derive(Clone, Copy)]
 pub enum EvenUartParity {}
-
-impl UartParity for EvenUartParity {
-	const IS_EXISTS: usize = 1;
-	
-	#[inline]
-	fn make_parity<R>(
-		byte: u8,
-		
-		event_add_high_bit: impl FnOnce() -> R, 
-		event_add_low_bit: impl FnOnce() -> R
-	) -> R {
-		if calculate_parity(byte) == 0 {
-			event_add_high_bit()
-		} else {
-			event_add_low_bit()
-		}
-	}
-}
+impl UartParity for EvenUartParity {}
 
 
 #[derive(Clone, Copy)]
 pub enum OddUartParity {}
-
-impl UartParity for OddUartParity {
-	const IS_EXISTS: usize = 1;
-	
-	#[inline]
-	fn make_parity<R>(
-		byte: u8,
-		
-		event_add_high_bit: impl FnOnce() -> R, 
-		event_add_low_bit: impl FnOnce() -> R
-	) -> R {
-		if calculate_parity(byte) == 0 {
-			event_add_low_bit()
-		} else {
-			event_add_high_bit()
-		}
-	}
-}
+impl UartParity for OddUartParity {}

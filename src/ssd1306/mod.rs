@@ -37,20 +37,6 @@ impl SSD1306TypeTransaction {
 	}
 }
 
-#[derive(Clone, Copy)]
-#[repr(u8)]
-pub enum FullSlowFillingIsDouble {
-	No = 1,
-	On = 2,
-}
-
-impl Default for FullSlowFillingIsDouble {
-	#[inline(always)]
-	fn default() -> Self {
-		Self::No
-	}
-}
-
 impl<I2C: I2CGenMaster, const CONFIG: SSD1306Config> SSD1306<I2C, CONFIG> {
 	#[inline]
 	const fn _new(addr: SSD1306Addr, i2c: I2C) -> Self {

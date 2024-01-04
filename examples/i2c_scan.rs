@@ -5,6 +5,7 @@
 use core::panic::PanicInfo;
 use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::NoIntZone, delay::delay_noinline_2s, i2c::{I2CMaster, generic::I2CGenMaster}, pio::Pio, print};
 
+// 626bytes
 // UART_BAUD=115200 cargo run --release --example i2c_scan
 
 #[no_mangle]

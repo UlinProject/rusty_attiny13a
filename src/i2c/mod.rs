@@ -361,7 +361,7 @@ impl<
 	/// ```rust
 	/// i2cmaster.scan(|addr| {
 	///		print!(b"Exists: ");
-	///		print!(@hex: *addr as u8);
+	///		print!(@hex: addr);
 	///		print!(b"\r\n");
 	///	}, |_addr| {
 	///		// no_exists
@@ -369,7 +369,7 @@ impl<
 	/// ```
 	pub fn scan(
 		&self, 
-		mut success: impl FnMut(I2CAddr), 
+		mut success: impl FnMut(I2CAddr),
 		mut noexists: impl FnMut(I2CAddr)
 	) {
 		const START: I2CAddr = I2CAddr::start_addrwrite();
@@ -377,10 +377,8 @@ impl<
 		
 		let mut start_addr = START;
 		let end_addr = END;
-		while start_addr != end_addr {
-			const _SKIP_ADDR: I2CAddr = I2CAddr::start_addrwrite();
-			
-			{
+		while end_addr > start_addr {
+			{ // i2c
 				let (result, transaction) = unsafe {
 					self.start(start_addr)
 				};

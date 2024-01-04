@@ -4,8 +4,8 @@ use core::{ops::Deref, marker::ConstParamTy};
 const MAX_I2C_ADDR: usize = 0b01111111;
 
 /// 7bit addr + 1bit typewrite
-#[derive(ConstParamTy, PartialEq, Eq)]
-#[derive(Clone, Copy)]
+#[derive(ConstParamTy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(transparent)]
 pub struct I2CAddr {
 	addr: u8,

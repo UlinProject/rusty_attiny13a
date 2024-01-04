@@ -5,7 +5,7 @@
 use core::panic::PanicInfo;
 use rusty_attiny13a::{uart::{serial_init, serial_read}, osccal::loadosccal_from_eeprom, int::NoIntZone, print};
 
-// 590 byte flash!
+// 552 byte flash!
 
 // By a strange coincidence, it was not possible to read above 115200.
 // below speeds that definitely work.

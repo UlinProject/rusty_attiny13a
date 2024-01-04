@@ -172,26 +172,62 @@ impl PrintData for NumData<u8> {
 }
 
 pub fn print_array<const N: usize>(array: [u8; N]) {
-	for a in array.iter() {
+	let mut i = 0u8;
+	let max = array.len() as u8;
+	while max > i {
+		let a = unsafe { *array.get_unchecked(i as usize) };
+		i += 1;
+		
 		a.print();
 	}
 }
 
 pub fn print_sarray(array: &[u8]) {
-	for a in array.iter() {
+	let mut i = 0u8;
+	let max = array.len() as u8;
+	while max > i {
+		let a = unsafe { *array.get_unchecked(i as usize) };
+		i += 1;
+		
 		a.print();
 	}
 }
 
 pub fn print_sarray2<const N: usize>(array: &[u8; N]) {
-	for a in array.iter() {
+	let mut i = 0u8;
+	let max = array.len() as u8;
+	while max > i {
+		let a = unsafe { *array.get_unchecked(i as usize) };
+		i += 1;
+		
+		a.print();
+	}
+}
+
+pub unsafe fn print_rawprogmem(
+	mut a_pgm: *const u8,
+	max_pgm: *const u8
+) {
+	while max_pgm > a_pgm {
+		let a = read_byte(a_pgm);
+		a_pgm = a_pgm.add(1);
+		
 		a.print();
 	}
 }
 
 pub fn print_progmem<const N: usize>(array: ProgMem<[u8; N]>) {
-	for a in array.iter() {
+	/*for a in array.iter() {
 		a.print();
+	}*/
+	unsafe {
+		let start_addr = array.as_ptr() as *const u8;
+		let end_addr = start_addr.add(N);
+		
+		print_rawprogmem(
+			start_addr,
+			end_addr
+		)
 	}
 }
 
@@ -234,11 +270,21 @@ impl<const N: usize> PrintData for ProgMem<[u8; N]> {
 #[macro_export]
 macro_rules! print {
 	[ @progmem: $($data:tt)* ] => {{
+		const LEN: usize = ($($data)*).len();
 		$crate::avr_progmem::progmem! {
-			static progmem ADATA: [u8; ($($data)*).len()] = *($($data)*);
+			static progmem ADATA: [u8; LEN] = *($($data)*);
 		}
 		
 		$crate::print!( ADATA );
+		/*unsafe {
+			let start_addr = ADATA.as_ptr() as *const u8;
+			let end_addr = start_addr.add(LEN);
+			
+			$crate::print::print_rawprogmem(
+				start_addr,
+				end_addr
+			)
+		}*/
 	}};
 	[ @num: $($data:tt)* ] => {{
 		let num = $crate::print::NumData::new( $($data)* );

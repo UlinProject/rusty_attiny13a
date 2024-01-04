@@ -5,7 +5,7 @@
 use core::panic::PanicInfo;
 use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::NoIntZone, delay::delay_noinline_1s, print};
 
-// 402 byte flash!
+// 362 byte flash!
 
 // UART_BAUD=460800 cargo run --release --example uart
 // UART_BAUD=230400 cargo run --release --example uart
