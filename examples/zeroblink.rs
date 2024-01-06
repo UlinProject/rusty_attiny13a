@@ -5,7 +5,7 @@
 use core::panic::PanicInfo;
 use rusty_attiny13a::{pio::Pio, delay};
 
-// 60bytes
+// 70bytes
 // cargo run --release --example zeroblink
 
 #[no_mangle]

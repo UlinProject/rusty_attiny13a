@@ -1,6 +1,6 @@
 
 /// A pointer that designates any interaction with the pointer as volatile.
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 #[repr(transparent)]
 pub struct VolatilePtr {
 	ptr: *mut u8

@@ -55,18 +55,6 @@ impl<'a, T> I2CGenMaster for &'a T where T: I2CGenMaster {
 pub trait I2CGenTransaction {
 	fn write(&self, data: u8) -> bool;
 	unsafe fn stop(&self);
+	
+	fn clone_bus(&self) -> impl I2CGenMaster;
 }
-
-/*impl<'a, T> I2CGenMaster for &'a T where T: I2CGenMaster {
-	#[inline(always)]
-	fn scan(&self, success: impl FnMut(I2CAddr), noexists: impl FnMut(I2CAddr)) {
-		T::scan(&self, success, noexists)
-	}
-
-type WriteTransaction;
-
-fn start<const ADDR: I2CAddr>(&self) -> Self::WriteTransaction {
-        todo!()
-    }
-}
-*/

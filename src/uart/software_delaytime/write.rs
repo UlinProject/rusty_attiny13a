@@ -147,12 +147,12 @@ impl<const TXPIO: Pio, const N: usize, Parity: UartParity> UartPortWrite<TXPIO, 
 		}
 	}
 	
-	#[inline]
+	#[inline(always)]
 	pub const fn port<const TXPIO2: Pio>(self) -> UartPortWrite<TXPIO2, N, Parity> {
 		self.builder.port::<TXPIO2>()
 	}
 	
-	#[inline]
+	#[inline(always)]
 	pub fn upload_230400(&self) {
 		const TX_BAUD: UartBaudTimeU64 = (SafeUartBaud::B230400)
 			.make()
@@ -162,7 +162,7 @@ impl<const TXPIO: Pio, const N: usize, Parity: UartParity> UartPortWrite<TXPIO, 
 		self.upload::<{TX_BAUD.us}, {TX_BAUD.ns}>();
 	}
 	
-	#[inline]
+	#[inline(always)]
 	pub fn upload_115200(&self) {
 		const TX_BAUD: UartBaudTimeU64 = (SafeUartBaud::B115200)
 			.make()
@@ -172,7 +172,7 @@ impl<const TXPIO: Pio, const N: usize, Parity: UartParity> UartPortWrite<TXPIO, 
 		self.upload::<{TX_BAUD.us}, {TX_BAUD.ns}>();
 	}
 	
-	#[inline]
+	#[inline(always)]
 	pub fn upload_57600(&self) {
 		const TX_BAUD: UartBaudTimeU64 = (SafeUartBaud::B57600)
 			.make()
@@ -182,7 +182,7 @@ impl<const TXPIO: Pio, const N: usize, Parity: UartParity> UartPortWrite<TXPIO, 
 		self.upload::<{TX_BAUD.us}, {TX_BAUD.ns}>();
 	}
 	
-	#[inline]
+	#[inline(always)]
 	pub fn upload_9600(&self) {
 		const TX_BAUD: UartBaudTimeU64 = (SafeUartBaud::B9600)
 			.make()
@@ -202,7 +202,7 @@ impl<const TXPIO: Pio, const N: usize, Parity: UartParity> UartPortWrite<TXPIO, 
 		let mut i = 0u8;
 		let len = arr.len() as u8;
 		while len > i {
-			arr[i as usize].upload_inlinealways();
+			unsafe { arr.get_unchecked(i as usize).upload_inlinealways(); }
 			i += 1;
 			
 			sleep_inlinealways::<BAUD_SLEEP_US, BAUD_SLEEP_NS>();

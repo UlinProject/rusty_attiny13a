@@ -5,17 +5,13 @@
 #![feature(adt_const_params)]
 #![feature(const_fn_floating_point_arithmetic)]
 #![feature(const_mut_refs)]
-#![allow(named_asm_labels)]
-#![feature(const_trait_impl)]
 #![feature(effects)]
+#![feature(maybe_uninit_uninit_array)]
+#![feature(maybe_uninit_array_assume_init)]
 
 #![no_std]
-extern crate avrd;
-
-/// Progmem utilities for the AVR architectures.
-pub mod avr_progmem {
-	pub use avr_progmem::*;
-}
+pub extern crate avrd;
+pub extern crate avr_progmem;
 
 pub mod int;
 pub mod print;
@@ -30,3 +26,4 @@ pub mod i2c;
 pub mod ssd1306;
 pub mod freq;
 pub mod cparse;
+pub mod crc;

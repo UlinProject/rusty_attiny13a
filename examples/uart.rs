@@ -3,9 +3,9 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::NoIntZone, delay::delay_noinline_1s, print};
+use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::NoIntZone, print, delay};
 
-// 362 byte flash!
+// 358bytes flash!
 
 // UART_BAUD=460800 cargo run --release --example uart
 // UART_BAUD=230400 cargo run --release --example uart
@@ -16,7 +16,6 @@ use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::No
 // UART_BAUD=CUSTOM cargo run --release --example uart
 
 // 921600 also works but is unstable, 
-// 460800 can also contain a large percentage of errors.
 //
 // if you want stability at a certain speed you can adjust the calibration index.
 //
@@ -33,9 +32,9 @@ pub extern "C" fn main() -> ! {
 		+ Even Parity
 	*/
 	loop {
-		print!(@progmem: b"\r\nHello world");
+		print!(progmem: b"\r\nHello world");
 		
-		delay_noinline_1s();
+		delay!(1000);
 	}
 }
 

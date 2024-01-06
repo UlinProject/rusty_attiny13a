@@ -3,9 +3,9 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::NoIntZone, delay::delay_noinline_2s, i2c::{I2CMaster, generic::I2CGenMaster}, pio::Pio, print};
+use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::NoIntZone, i2c::{I2CMaster, generic::I2CGenMaster}, pio::Pio, print, delay};
 
-// 626bytes
+// 606bytes flash
 // UART_BAUD=115200 cargo run --release --example i2c_scan
 
 #[no_mangle]
@@ -33,19 +33,17 @@ pub extern "C" fn main() -> ! {
 	};
 	
 	loop {
-		print!(@progmem: b"\n\rSearch:\n\r");
+		print!(progmem: b"\n\rSearch:\n\r");
 		
 		i2cmaster.scan(
 			|addr| { // exists,
-				print!(b'#');
-				print!(@hex: addr);
-				print!(@progmem: b", exists!\n\r");
+				print!({b'#'} {X: addr} {progmem: b", exists!\n\r"});
 			},
 			|_addr| {} // no_exists
 		);
-		print!(@progmem: b"End.\n\r");
+		print!(progmem: b"End.\n\r");
 		
-		delay_noinline_2s();
+		delay!(2000);
 	}
 }
 

@@ -58,7 +58,7 @@ pub struct I2CFreqCorrection {
 	mul: f64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct I2CFreqTimeU64 {
 	pub full_impulse_us: u64,
 	pub full_impulse_ns: u64,
@@ -129,6 +129,9 @@ impl I2CFreq {
 		}
 		if correct.mul != 0.0 {
 			time *= correct.mul;
+		}
+		if 0.0 > time {
+			time = 0.0;
 		}
 		
 		// TODO

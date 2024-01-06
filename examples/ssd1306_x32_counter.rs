@@ -3,10 +3,11 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use rusty_attiny13a::{int::NoIntZone, osccal::loadosccal_from_eeprom, i2c::I2CMaster, pio::Pio, ssd1306::{conf::SSD1306Config, SSD1306, Shift}, delay::delay_noinline_100ms};
+use rusty_attiny13a::{int::NoIntZone, osccal::loadosccal_from_eeprom, i2c::I2CMaster, pio::Pio, ssd1306::{conf::SSD1306Config, SSD1306}, delay};
 use avr_progmem::progmem;
 
-// 1014 byte flash (32bytes logo, + counter(+num fonts) + flip) + autodetect i2c_addr + i2c 400khz...
+// 970 byte flash 
+// (32bytes logo, + counter(+num fonts) + flip) + autodetect i2c_addr + i2c 400khz...
 
 /*
 	cargo run --release --example ssd1306_x32_counter
@@ -73,13 +74,13 @@ pub extern "C" fn main() -> ! {
 		ssd1306.set_xy(cx + 16 + 8, cy);
 		ssd1306.push(|w| {
 			w.draw_u16(counter);
-			
-			counter += 1;
 		});
-		ssd1306.shift(Shift::Vertical, shift);
+		counter += 1;
+		ssd1306.shift(shift);
+		
 		
 		shift += 1;
-		delay_noinline_100ms();
+		delay!(100);
 	}
 }
 

@@ -1,6 +1,4 @@
 
-use core::ptr::addr_of;
-
 use avr_progmem::{wrapper::ProgMem, raw::read_byte};
 use crate::{bv::bv, uart::serial_write_byte, i2c::addr::I2CAddr, eeprom::EepromAddr};
 
@@ -65,7 +63,8 @@ impl PrintData for HexData<EepromAddr> {
 
 impl PrintData for HexData<u8> {
 	fn print(self) {
-		#[link_section = ".progmem.hexdataprint"]
+		// Using arrays, loops, etc. requires a lot more flash memory.
+		/*#[link_section = ".progmem.hexdataprint"]
 		static HDATA: [u8; 16] = *b"0123456789ABCDEF";
 		
 		fn print_hbyte(pos: u8) {
@@ -79,7 +78,22 @@ impl PrintData for HexData<u8> {
 		b'0'.print();
 		b'x'.print();
 		print_hbyte(self.0 >> 4);
-		print_hbyte(self.0 & 0xF);
+		print_hbyte(self.0 & 0xF);*/
+		
+		const fn make_hbyte(pos: u8) -> u8 {
+			let mut a = b'0' + pos;
+			
+			if a > b'9' {
+				a += 7;
+			}
+			
+			a
+		}
+		
+		b'0'.print();
+		b'x'.print();
+		make_hbyte(self.0 >> 4).print();
+		make_hbyte(self.0 & 0xF).print();
 	}
 }
 
@@ -101,6 +115,15 @@ impl<T> BinData<T> {
 	}
 }
 
+impl PrintData for BinData<I2CAddr> {
+	#[inline]
+	fn print(self) {
+		PrintData::print(
+			BinData::new(self.0.addr())
+		)
+	}
+}
+
 impl PrintData for BinData<u8> {
 	fn print(self) {
 		let a: u8 = self.0;
@@ -108,18 +131,8 @@ impl PrintData for BinData<u8> {
 		b'b'.print();
 		let mut i = 0u8;
 		let max = 8u8;
-		while i < max {
-			#[inline(always)]
-			const fn make_bool(a: u8, i: u8, max: u8) -> bool {
-				(a & bv(max - 1 - i)) != 0
-			}
-			
-			let symb = if make_bool(a, i, max) {
-				b'1'
-			}else {
-				b'0'
-			};
-			symb.print();
+		while max > i {
+			(b'0' + (((a & bv(max - i)) != 0) as u8)).print();
 			
 			i += 1;
 		}
@@ -146,6 +159,7 @@ impl<T> NumData<T> {
 
 impl PrintData for NumData<u8> {
 	fn print(self) {
+		// orig code
 		let mut a: u8 = self.0;
 		
 		#[inline(always)]
@@ -168,6 +182,40 @@ impl PrintData for NumData<u8> {
 			a %= 10;
 		}
 		_print_onenum(a);
+		/*
+		#[inline(always)]
+		fn _print_onenum(a: u8) {
+			(b'0' + a).print()
+		}
+		let mut a: u8 = self.0;
+		
+		{
+			'one_place_inend: {
+				'two_place_inend: {
+					if a >= 100 {
+						_print_onenum(a / 100);
+						a %= 100;
+						
+						break 'two_place_inend;
+					}
+					
+					if a >= 10 {
+						_print_onenum(a / 10);
+						a %= 10;
+						
+						break 'one_place_inend;
+					}
+					
+					break 'one_place_inend;
+				}
+				
+				_print_onenum(a / 10);
+				a %= 10;
+				
+				break 'one_place_inend;
+			}
+			_print_onenum(a);
+		} */
 	}
 }
 
@@ -237,6 +285,12 @@ impl PrintData for NumData<EepromAddr> {
 	}
 }
 
+impl PrintData for NumData<I2CAddr> {
+	fn print(self) {
+		NumData::new(self.0.rm_control_bit()).print()
+	}
+}
+
 impl<const N: usize> PrintData for [u8; N] {
 	fn print(self) {
 		print_array(self)
@@ -269,44 +323,51 @@ impl<const N: usize> PrintData for ProgMem<[u8; N]> {
 
 #[macro_export]
 macro_rules! print {
-	[ @progmem: $($data:tt)* ] => {{
-		const LEN: usize = ($($data)*).len();
+	[ { $($block:tt)* } $($unk:tt)* ] => {
+		$crate::print! {
+			$($block)*
+		}
+		
+		$crate::print! {
+			$($unk)*
+		}
+	};
+	
+	[ progmem: $data: expr ] => {{
+		const LEN: usize = $data.len();
 		$crate::avr_progmem::progmem! {
-			static progmem ADATA: [u8; LEN] = *($($data)*);
+			static progmem ADATA: [u8; LEN] = *$data;
 		}
 		
 		$crate::print!( ADATA );
-		/*unsafe {
-			let start_addr = ADATA.as_ptr() as *const u8;
-			let end_addr = start_addr.add(LEN);
-			
-			$crate::print::print_rawprogmem(
-				start_addr,
-				end_addr
-			)
-		}*/
 	}};
-	[ @num: $($data:tt)* ] => {{
-		let num = $crate::print::NumData::new( $($data)* );
+	[ num: $data: expr ] => {{
+		let num = $crate::print::NumData::new( $data );
 		
 		$crate::print!(num);
 	}};
 	
-	[ @bin: $($data:tt)* ] => {{
-		let bin = $crate::print::BinData::new( $($data)* );
+	[ bin: $data: expr $( , $($unk:tt)* )? ] => {{
+		let bin = $crate::print::BinData::new( $data );
 		
 		$crate::print!(bin);
 	}};
-	[ @hex: $($data:tt)* ] => {{
-		let hex = $crate::print::HexData::new( $($data)* );
+	
+	[ X: $data: expr $( , $($unk:tt)* )? ] => {{
+		let hex = $crate::print::HexData::new( $data );
 		
 		$crate::print!(hex);
 	}};
-	[ $($symb:tt)* ] => {{
-		$crate::print::PrintData::print($($symb)*);
+	[ hex: $data: expr $( , $($unk:tt)* )? ] => {{
+		let hex = $crate::print::HexData::new( $data );
+		
+		$crate::print!(hex);
 	}};
 	
 	[] => [];
+	[ $($symb:tt)+ ] => {{
+		$crate::print::PrintData::print($($symb)*);
+	}};
 }
 
 #[macro_export]

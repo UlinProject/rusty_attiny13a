@@ -1,9 +1,7 @@
 
 use core::ptr::addr_of;
-
 use avr_progmem::raw::read_value;
-
-use crate::{i2c::generic::{I2CGenMaster, I2CGenTransaction}, ssd1306::{conf::SSD1306Config, addr::SSD1306Addr, pixel::SSD1306Pixel, fonts::pixel::FontPixel}, ssd1306_cfont};
+use crate::{i2c::generic::{I2CGenMaster, I2CGenTransaction}, ssd1306::{conf::SSD1306Config, addr::SSD1306Addr, pixel::SSD1306Pixel, fonts::pixel::FontPixel, cmd::SSD1306Cmd, scroll::{SSD1306ScrollSpeed, SSD1306ScrollDirection}}, ssd1306_cfont};
 
 pub mod addr;
 pub mod conf;
@@ -12,6 +10,8 @@ pub mod fonts {
 	pub mod font;
 	pub mod pixel;
 }
+pub mod cmd;
+pub mod scroll;
 
 /*
 	Due to strict memory savings, the code had to be optimized in a unique way. :(
@@ -101,7 +101,7 @@ impl<I2C: I2CGenMaster, const CONFIG: SSD1306Config> SSD1306<I2C, CONFIG> {
 				}
 			}
 		}
-		// original code
+		// original code + upload config
 		/*match SSD1306Addr::search(&i2c) {
 			Some(addr) => Some(Self::_new(addr, i2c)),
 			None => None,
@@ -136,7 +136,7 @@ impl<I2C: I2CGenMaster, const CONFIG: SSD1306Config> SSD1306<I2C, CONFIG> {
 		)
 	}*/
 	
-	unsafe fn _cmd(&self) -> (bool, SSD1306CmdTransaction<I2C::Transaction>) {
+	unsafe fn _cmd(&self) -> (bool, SSD1306CmdTransaction<I2C::Transaction, CONFIG>) {
 		let (result, transac) = self._mode(SSD1306TypeTransaction::Cmd);
 		
 		(result, SSD1306CmdTransaction { i2c_transaction: transac })
@@ -195,11 +195,21 @@ impl<I2C: I2CGenMaster, const CONFIG: SSD1306Config> SSD1306<I2C, CONFIG> {
 		result
 	}
 	
-	pub fn shift(&self, shift: Shift, pos: u8) {
+	pub fn draw_u16(&self, a: u16) -> bool {
+		let (result, transac) = unsafe { self._data() };
+		
+		//if result {
+			transac.draw_u16(a);
+		//}
+		transac.stop();
+		result
+	}
+	
+	pub fn shift(&self, pos: u8) {
 		let (_, w) = unsafe { self._cmd() };
 		
 		//if result {
-			let result = w.shift(shift, pos);
+			let result = w.shift(pos);
 		//}
 		w.stop();
 		result
@@ -247,18 +257,36 @@ impl<I2C: I2CGenMaster, const CONFIG: SSD1306Config> SSD1306<I2C, CONFIG> {
 		self.push_pixel(pixel);
 	}
 	
-	/*pub fn cmd(
+	pub fn cmd(
 		&self,
-		next: impl FnOnce(SSD1306CmdTransaction<I2C::Transaction>)
+		next: impl FnOnce(&SSD1306CmdTransaction<I2C::Transaction, CONFIG>)
 	) -> bool {
-		self._mode(
-			SSD1306TypeTransaction::Cmd,
-			|transac| next(SSD1306CmdTransaction {
-				i2c_transaction: transac
-			})
-		)
+		let (result, transac) = unsafe { self._cmd() };
+		
+		//if result {
+			next(&transac);
+		//}
+		transac.stop();
+		result
 	}
 	
+	pub fn fullscreen_scroll(
+		&self,
+		
+		dir: SSD1306ScrollDirection, 
+		speed: SSD1306ScrollSpeed,
+		pos: u8, width: u8
+	) -> bool {
+		let (result, transac) = unsafe { self._cmd() };
+		
+		//if result {
+			transac.fullscreen_scroll(dir, speed, pos, width);
+		//}
+		transac.stop();
+		result
+	}
+	
+	/*
 	pub fn upload_config(&self) -> bool {
 		self.cmd(|w| {
 			CONFIG.read(|a| unsafe { w.unk_write(a); });
@@ -368,20 +396,24 @@ impl<T: I2CGenTransaction> SSD1306DataTransaction<T> {
 	pub fn draw_u16(&self, inum: u16) {
 		// TODO
 		let mut rnum = 0;
-		let mut c = 0;
+		let mut c = 0u8;
 		{ // invers
 			let mut num = inum;
-			while num > 0 {
-				rnum = rnum * 10 + (num % 10);
+			loop {
+				rnum = (rnum * 10) + (num % 10); // TODO
 				num /= 10;
 				
 				c += 1;
+				if num == 0 {
+					break;
+				}
 			}
 		}
 		
 		while c > 0 {
-			self.draw_onesymbnum((rnum % 10) as _);
+			let nprint = (rnum % 10) as _;
 			rnum /= 10;
+			self.draw_onesymbnum(nprint);
 			
 			c -= 1;
 		}
@@ -431,24 +463,17 @@ impl<T: I2CGenTransaction> SSD1306DataTransaction<T> {
 
 #[derive(Clone, Copy)]
 #[repr(u8)]
-pub enum Shift {
-	Vertical = 0xD3,
-}
-
-#[derive(Clone, Copy)]
-#[repr(u8)]
 pub enum DisplayOnOff {
-	On = 0xAF,
-	Off = 0xAE,
+	On = SSD1306Cmd::DisplayOn as _,
+	Off = SSD1306Cmd::DisplayOff as _,
 }
 
-#[derive(Clone, Copy)]
 #[repr(transparent)]
-pub struct SSD1306CmdTransaction<T: I2CGenTransaction> {
+pub struct SSD1306CmdTransaction<T: I2CGenTransaction, const CONFIG: SSD1306Config> {
 	i2c_transaction: T,
 }
 
-impl<T: I2CGenTransaction> SSD1306CmdTransaction<T> {
+impl<T: I2CGenTransaction, const CONFIG: SSD1306Config> SSD1306CmdTransaction<T, CONFIG> {
 	#[inline]
 	pub fn stop(self) {
 		unsafe { self.i2c_transaction.stop() }
@@ -457,6 +482,11 @@ impl<T: I2CGenTransaction> SSD1306CmdTransaction<T> {
 	#[inline]
 	pub unsafe fn write(&self, a: u8) -> bool {
 		self.i2c_transaction.write(a)
+	}
+	
+	#[inline]
+	pub unsafe fn cmd(&self, a: SSD1306Cmd) -> bool {
+		self.write(a.read())
 	}
 	
 	pub fn set_xy(&self, xpos: u8, ypos: u8) -> bool {
@@ -470,22 +500,48 @@ impl<T: I2CGenTransaction> SSD1306CmdTransaction<T> {
 		}
 	}
 	
+	pub fn fullscreen_scroll(
+		&self, 
+		dir: SSD1306ScrollDirection,
+		speed: SSD1306ScrollSpeed, 
+		
+		pos: u8, width: u8
+	) {
+		// TODO:(
+		unsafe {
+			self.cmd(SSD1306Cmd::DeactivateScroll);
+			
+			//
+			self.write(dir as _); // Команда для включения скроллинга вправо
+			self.write(0x00); // skip
+			
+			self.write(pos);
+			self.write(speed as _); // skip
+			
+			//self.write(0x07); // Скорость скроллинга (от 0 до 7)
+			self.write(pos + width-1);
+			self.write(0x00); // skip
+			self.write(0xFF);
+			self.cmd(SSD1306Cmd::ActivateScroll);
+		}
+	}
+	
 	pub fn display_onoff(&self, onoff: DisplayOnOff) {
 		unsafe {
 			self.write(onoff as _);
 		}
 	}
 	
-	pub fn shift(&self, shift: Shift, pos: u8) {
+	pub fn shift(&self, pos: u8) {
 		unsafe {
-			self.write(shift as _);
+			self.cmd(SSD1306Cmd::SetDisplayOffset);
 			self.write(pos);
 		}
 	}
 	
 	pub fn set_brig(&self, brig: u8) {
 		unsafe {
-			self.write(0x81);
+			self.cmd(SSD1306Cmd::SetContrast);
 			self.write(brig);
 		}
 	}

@@ -44,7 +44,7 @@ impl Default for SafeUartBaud {
 }
 
 //#[derive(ConstParamTy, PartialEq, Eq)]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct UartBaudTime {
 	pub us: u8,
 	pub ns: u16,
@@ -71,7 +71,7 @@ impl UartBaudTime {
 // try adding a `where` bound using this expression: 
 // `where [(); {BAUD_SLEEP.get_us64()}]:
 #[derive(ConstParamTy, PartialEq, Eq)]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct UartBaudTimeU64 {
 	pub us: u64,
 	pub ns: u64,
@@ -111,7 +111,7 @@ impl UartBaud {
 	pub const fn make_rx_time(self) -> UartBaudTime {
 		self.make_time(UartBaudCorrection {
 			add: 0.0,
-			sub: 0.4, // 0.4
+			sub: 0.9, // 0.8
 			div: 0.0,
 		})
 	}
@@ -148,30 +148,13 @@ impl UartBaud {
 		if correct.div != 0.0 {
 			time /= correct.div;
 		}
+		if 0.0 > time {
+			time = 0.0;
+		}
 		
 		let us = time as _;
 		let ns = (((time * 1000.0)) % 1000.0) as _;
 		
 		UartBaudTime::new(us, ns)
 	}
-	
-	/*old..
-	#[inline]
-	pub const fn make_sd_delaysleep(self) -> u64 {
-		// time_fn:
-		/*asm!("1: sbiw {i}, 1", // clocks2
-				"brne 1b", // clocks 1/2
-				i = inout(reg_iw) zero => _,
-			)
-		*/
-		// osccal: 0x48
-		// freq: 9.6
-		// the values were chosen according to the working code.
-		match self {
-			Self::B230400 => 7, // 7 - 4.4us (exp: 4.34027778 μs. :()
-			Self::B115200 => 10 + (7), // 17 - 8.6us ! (exp: 8.68us)
-			Self::B57600 => 21 + (10 + 7), // 38 - 17.4us (exp: 17.4us)
-			Self::B9600 => 209 + (21 + 10 + 7), // 247 - 104.0us-105us (exp: 104us) :(
-		}
-	} */
 }

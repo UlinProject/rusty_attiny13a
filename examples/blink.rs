@@ -5,7 +5,7 @@
 use core::panic::PanicInfo;
 use rusty_attiny13a::{osccal::loadosccal_from_eeprom, int::NoIntZone, pio::Pio, delay};
 
-// 94bytes
+// 104bytes flash
 // cargo run --release --example blink
 
 #[no_mangle]

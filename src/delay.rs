@@ -27,25 +27,61 @@
 // add delay_noinline: 100ns, 1s
 // FIX(4):
 // add delay macros
+// FIX(5):
+// add delay(fn) + delay_num(trait)
 
 #[inline(never)]
 pub fn delay_noinline_100ms() {
-	delay_ms::<100>()
+	crate::delay_inline_ms!(100);
 }
 
 #[inline(never)]
 pub fn delay_noinline_500ms() {
-	delay_ms::<500>()
+	crate::delay_inline_ms!(500);
 }
 
 #[inline(never)]
 pub fn delay_noinline_1s() {
-	delay_ms::<1000>()
+	crate::delay_inline_sec!(1);
 }
 
 #[inline(never)]
 pub fn delay_noinline_2s() {
-	delay_ms::<2000>()
+	crate::delay_inline_sec!(2);
+}
+
+pub trait DelayNum: PartialOrd<Self> + SubAssign<Self> + Sized {
+	const ZERO: Self;
+	const ONE: Self;
+}
+
+macro_rules! __delay_num {
+	[ $($t: ty),* $(,)? ] => {
+		$(
+			impl DelayNum for $t {
+				const ZERO: Self = 0;
+				const ONE: Self = 1;
+			}
+		)*
+	}
+}
+
+__delay_num! {
+	u8, u16, u32, u64,
+	i8, i16, i32, i64,
+}
+
+/// 
+/// (for undemanding code regarding time intervals (time correction required).)
+/// (saving flash memory with a separate function.)
+/// (TODO, TIME CORRECTION)
+#[inline(never)]
+pub fn delay<N: DelayNum>(mut time: N) {
+	while time > N::ZERO {
+		crate::delay_inline_ms!(1);
+		
+		time -= N::ONE;
+	}
 }
 
 /// Delay by the exact number of CYCLES.
@@ -87,11 +123,46 @@ pub fn delay_sec<const SEC: u64>() {
 #[macro_export]
 macro_rules! delay {
 	[ $e: expr ] => {
+		$crate::delay_inline!($e);
+	};
+}
+
+#[macro_export]
+macro_rules! delay_inline {
+	[ $e: expr ] => {
+		$crate::delay_inline_ms!($e);
+	};
+}
+
+#[macro_export]
+macro_rules! delay_inline_ms {
+	[ $e: expr ] => {
+		$crate::delay::delay_ms::<$e>();
+	};
+}
+
+#[macro_export]
+macro_rules! delay_inline_ns {
+	[ $e: expr ] => {
 		$crate::delay::delay_ns::<$e>();
 	};
 }
 
-use core::arch::asm;
+#[macro_export]
+macro_rules! delay_inline_us {
+	[ $e: expr ] => {
+		$crate::delay::delay_us::<$e>();
+	};
+}
+
+#[macro_export]
+macro_rules! delay_inline_sec {
+	[ $e: expr ] => {
+		$crate::delay::delay_sec::<$e>();
+	};
+}
+
+use core::{arch::asm, ops::SubAssign};
 
 use crate::freq::CPU_FREQUENCY_HZ;
 
@@ -110,7 +181,7 @@ use crate::freq::CPU_FREQUENCY_HZ;
 /// #![feature(asm_const)]
 ///
 /// When the rustc `feature(generic_const_exprs)` is complete
-/// (https://github.com/rust-lang/rust/issues/76560) it will become possible to do this directly:
+/// (<https://github.com/rust-lang/rust/issues/76560>) it will become possible to do this directly:
 /// ```
 /// fn delay_ms<const SECS: u64>() {
 ///	 Delayer::<{SECS * CPU_FREQUENCY_HZ / 1000}>::delay_impl();
@@ -123,10 +194,10 @@ use crate::freq::CPU_FREQUENCY_HZ;
 /// struct. And in turn those associated consts are fed to the `asm!` macro.
 ///
 /// The rustc `feature(asm_const)` is also a work in progress
-/// (https://github.com/rust-lang/rust/issues/93332). It appears to work well in the present code.
+/// (<https://github.com/rust-lang/rust/issues/93332>). It appears to work well in the present code.
 /// It also depends on the feature discussed in the next paragraph.
 ///
-/// When `feature(inline_const)` (https://github.com/rust-lang/rust/issues/76001) is complete, all
+/// When `feature(inline_const)` (<https://github.com/rust-lang/rust/issues/76001>) is complete, all
 /// the conditionals used in `delay_impl()` can be wrapped within `const {}` blocks. To ensure
 /// beyond a shadow of a doubt that the whole function is fully linearised at compile time.
 /// Nevertheless; thanks to constant propagation; this already happens implicitly.

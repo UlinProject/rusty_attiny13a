@@ -1,5 +1,5 @@
 
-use core::{ops::Deref, marker::ConstParamTy};
+use core::marker::ConstParamTy;
 
 const MAX_I2C_ADDR: usize = 0b01111111;
 
@@ -44,7 +44,7 @@ impl I2CAddr {
 	
 	#[inline]
 	pub const unsafe fn next(self) -> I2CAddr {
-		let mut addr = self.rm_control_bit();
+		let mut addr = self.addr();
 		addr += 1;
 		
 		Self::new_addrwrite_or_abort(addr)
@@ -52,28 +52,24 @@ impl I2CAddr {
 	
 	#[inline]
 	pub const fn rm_control_bit(self) -> u8 {
-		let mut addr = self.read();
+		let mut addr = self.raw_read();
 		addr >>= 1; // SKIP WRITE
 		
 		addr
 	}
 	
+	#[inline]
+	pub const fn addr(self) -> u8 {
+		self.rm_control_bit()
+	}
+	
 	#[inline(always)]
-	pub const fn read(self) -> u8 {
+	pub const fn raw_read(self) -> u8 {
 		self.addr
 	}
 	
 	#[inline(always)]
-	pub const fn read2(&self) -> &u8 {
+	pub const fn raw_read2(&self) -> &u8 {
 		&self.addr
-	}
-}
-
-impl Deref for I2CAddr {
-	type Target = u8;
-
-	#[inline(always)]
-	fn deref(&self) -> &Self::Target {
-		self.read2()
 	}
 }

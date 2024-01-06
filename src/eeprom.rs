@@ -70,7 +70,7 @@ impl EepromAddr {
 	}
 	
 	pub fn new<R>(
-		addr: u8, 
+		addr: u8,
 		next: impl FnOnce(Self) -> R,
 		err: impl FnOnce() -> R
 	) -> R {

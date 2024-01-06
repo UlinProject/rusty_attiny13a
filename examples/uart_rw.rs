@@ -5,7 +5,7 @@
 use core::panic::PanicInfo;
 use rusty_attiny13a::{uart::{serial_init, serial_read}, osccal::loadosccal_from_eeprom, int::NoIntZone, print};
 
-// 552 byte flash!
+// 490 bytes flash!
 
 // By a strange coincidence, it was not possible to read above 115200.
 // below speeds that definitely work.
@@ -34,13 +34,11 @@ pub extern "C" fn main() -> ! {
 		+ Even Parity
 	*/
 	loop {
-		// Due to a strange circumstance, 
-		// it is impossible to read more than 18 elements, maximum 18.
-		// (this is also limited in function)
-		let array = serial_read::<4>(); // 4 -> [u8; 4], max: searial_read::<18>()
+		let array = serial_read::<4>();
 		
-		print!(array);
-		print!(b"\r\n");
+		if let Some(ref array) = array { // Interestingly, referenceless operations require much more flash memory.
+			print!(array);
+		}
 	}
 }
 

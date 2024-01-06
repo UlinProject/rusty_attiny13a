@@ -1,6 +1,8 @@
 
 use core::marker::ConstParamTy;
 
+use crate::ssd1306::cmd::SSD1306Cmd;
+
 #[derive(ConstParamTy, PartialEq, Eq)]
 #[derive(Clone, Copy)]
 pub struct SSD1306Config {
@@ -54,39 +56,19 @@ impl SSD1306Config {
 				// only x32
 				
 				const X32PAGES: u8 = SSD1306Config::X128_32.pages;
-				/*
-				const X32PAGES: u8 = SSD1306Config::X128_32.pages;
-				progmem! {
-					static progmem X32_SSD1306_INIT: [u8; 14] = [
-						0xA8, ((X32PAGES * 8) - 1),
-							0x20, 0x00,
-							0x22, 0x00, (X32PAGES - 1),
-							0xDA, 0x02,
-						0x8D, 0x14,
-						
-						// AUTO_ON/OFF
-						0xAF, // switch on OLED
-						//0xAE, // OFF
-						
-						0xA1, 0xC8
-					];
-				}
-				
-				for a in X32_SSD1306_INIT.iter() {
-					write(a);
-				} */
 				arr = &[
-					0xA8, ((X32PAGES * 8) - 1),
-						0x20, 0x00,
-						0x22, 0x00, (X32PAGES - 1),
-						0xDA, 0x02,
-					0x8D, 0x14,
+					//SSD1306Cmd::DisplayOff as _, see reset event
+					SSD1306Cmd::SetDisplayClockDiv as _, 0x80,
 					
-					// AUTO_ON/OFF
-					0xAF, // switch on OLED
-					//0xAE, // OFF
+					SSD1306Cmd::SetMultiplex as _, ((X32PAGES * 8) - 1),
+						SSD1306Cmd::MemoryMode as _, 0x00,
+						SSD1306Cmd::PageAddr as _, 0x00, (X32PAGES - 1),
+						SSD1306Cmd::SetCOMpins as _, 0x02,
+					SSD1306Cmd::ChargePump as _, 0x14, // int vcc
 					
-					0xA1, 0xC8
+					SSD1306Cmd::SegRemap2 as _, 0xC8,
+					//SSD1306Cmd::SetContrast as _, 0x7F, see reset event
+					SSD1306Cmd::DisplayOn as _,
 				][..];
 				
 			},
@@ -94,32 +76,16 @@ impl SSD1306Config {
 				// only x64,
 				
 				const X64PAGES: u8 = SSD1306Config::X128_64.pages;
-				/*progmem! {
-					static progmem X64_SSD1306_INIT: [u8; 7] = [
-						0xA8, ((X64PAGES * 8) - 1),
-						0x8D, 0x14,
-						
-						// AUTO_ON/OFF
-						0xAF,
-						//0xAE, // OFF
-						
-						0xA1, 0xC8
-					];
-				}
-				
-				for a in X64_SSD1306_INIT.iter() {
-					write(a);
-				}*/
-				
 				arr = &[
-					0xA8, ((X64PAGES * 8) - 1),
-					0x8D, 0x14,
+					//SSD1306Cmd::DisplayOff as _, see reset event
+					SSD1306Cmd::SetDisplayClockDiv as _, 0x80,
 					
-					// AUTO_ON/OFF
-					0xAF,
-					//0xAE, // OFF
+					SSD1306Cmd::SetMultiplex as _, ((X64PAGES * 8) - 1),
+					SSD1306Cmd::ChargePump as _, 0x14, // int vcc
 					
-					0xA1, 0xC8
+					SSD1306Cmd::SegRemap2 as _, 0xC8,
+					// SSD1306Cmd::SetContrast as _, 0x7F, see reset event
+					SSD1306Cmd::DisplayOn as _,
 				];
 			}
 		};
@@ -129,6 +95,7 @@ impl SSD1306Config {
 		
 		while max > i {
 			write(unsafe { *arr.get_unchecked(i as usize) });
+			
 			i += 1;
 		}
 	}

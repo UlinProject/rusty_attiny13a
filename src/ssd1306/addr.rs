@@ -17,7 +17,6 @@ impl Deref for SSD1306Addr {
 	}
 }
 
-const UNITILIZED: I2CAddr = I2CAddr::new_addrwrite_or_abort(0);
 impl SSD1306Addr {
 	pub const ADDR0X3_C: SSD1306Addr = Self::def_0x3c();
 	pub const ADDR0X3_D: SSD1306Addr = Self::def_0x3d();
@@ -27,18 +26,6 @@ impl SSD1306Addr {
 		Self {
 			addr: a,
 		}
-	}
-	
-	#[inline]
-	pub const unsafe fn unitilized() -> Self {
-		unsafe {
-			Self::from(UNITILIZED)
-		}
-	}
-	
-	#[inline]
-	pub const fn is_unitilized(&self) -> bool {
-		self.addr.read() == UNITILIZED.read()
 	}
 	
 	#[inline]

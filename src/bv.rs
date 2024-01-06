@@ -18,23 +18,16 @@ pub trait BvNum {
 }
 
 macro_rules! _bv_num {
-	[ $([$ty: ty: $te: expr]);* $(;)? ] => {
+	[ $($ty: ty),* $(,)? ] => {
 		$(
 			impl BvNum for $ty {
-				const ONE: Self = $te;
+				const ONE: Self = 1;
 			}
 		)*
 	};
 }
 
 _bv_num! {
-	[u8: 1];
-	[u16: 1];
-	[u32: 1];
-	[u64: 1];
-	
-	[i8: 1];
-	[i16: 1];
-	[i32: 1];
-	[i64: 1];
+	u8, u16, u32, u64,
+	i8, i16, i32, i64,
 }

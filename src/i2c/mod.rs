@@ -8,38 +8,12 @@ pub mod generic;
 
 use crate::i2c::ack::read_ack;
 use crate::i2c::addr::I2CAddr;
+use crate::i2c::events::insert_bit;
 use crate::i2c::freq::I2CFreq;
 use crate::i2c::freq::I2CFreqTimeU64;
 use crate::i2c::generic::I2CGenMaster;
 use crate::i2c::generic::I2CGenTransaction;
 use crate::pio::Pio;
-use sleep::sleep;
-
-fn insert_bit<
-	const SDA: Pio,
-	const SCL: Pio,
-	
-	const FULL_IMPULSE_US: u64, const FULL_IMPULSE_NS: u64,
->(is_high: bool) {
-	// if start
-	// then scl_low+sda_low
-	
-	// current:
-	// SCL: LOW/STAND
-	//
-	
-	if is_high {
-		SDA.high();
-	}else {
-		SDA.low();
-	}
-	
-	//sleep::<{QUARTER_IMPULSE_US}, {QUARTER_IMPULSE_NS}>();
-	SCL.high();
-	sleep::<{FULL_IMPULSE_US}, {FULL_IMPULSE_NS}>(); // ????? REQUIRED?
-	SCL.low(); // ALWAYS END SCL LOW.
-	sleep::<{FULL_IMPULSE_US}, {FULL_IMPULSE_NS}>(); // ????? REQUIRED?
-}
 
 #[repr(transparent)]
 pub struct I2CMaster<
@@ -79,6 +53,18 @@ impl<
 	unsafe fn stop(&self) {
 		I2CWriteTransaction::_stop(&self)
 	}
+	
+	#[inline]
+	fn clone_bus(&self) -> impl I2CGenMaster {
+		let master = I2CMaster::<
+			SDA, 
+			SCL, 
+			
+			FULL_IMPULSE_US, FULL_IMPULSE_NS,
+		>{ };
+		
+		master.gen()
+	}
 }
 
 impl<
@@ -105,7 +91,8 @@ impl<
 		
 		{ // DATA WRITE
 			let mut i = 0u8;
-			while 8 > i {
+			let max = 8u8;
+			while max > i {
 				insert_bit::<
 					SDA, SCL, 
 					
@@ -138,7 +125,7 @@ impl<
 	#[inline]
 	fn _start(&self) {
 		events::start_event::<
-			SDA, SCL, 
+			SDA, SCL,
 				
 			FULL_IMPULSE_US, FULL_IMPULSE_NS,
 		>();
@@ -411,7 +398,7 @@ impl<
 		transaction._start();
 		
 		let result = transaction.write( // write addr
-			transaction.addr.read(),
+			transaction.addr.raw_read(),
 		);
 		
 		(result, transaction)

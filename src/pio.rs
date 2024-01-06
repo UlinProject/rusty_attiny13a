@@ -6,7 +6,7 @@ use crate::{volatile, bv::{bv, invers_bv}};
 
 /// I/O ports.
 #[derive(ConstParamTy, PartialEq, Eq)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 #[repr(u8)]
 pub enum Pio {
 	PB0 = 0,
@@ -186,7 +186,12 @@ impl PioInLevelState {
 	}
 	
 	#[inline]
-	pub fn is_fn<R>(self, pin: Pio, on: impl FnOnce() -> R, off: impl FnOnce() -> R) -> R {
+	pub fn is_fn<R>(
+		self,
+		pin: Pio,
+		on: impl FnOnce() -> R,
+		off: impl FnOnce() -> R
+	) -> R {
 		if (self.a & pin._bv()) != 0 {
 			on()
 		}else {
@@ -195,7 +200,11 @@ impl PioInLevelState {
 	}
 	
 	#[inline]
-	pub fn c_is_fn<R, const PIN: Pio>(self, on: impl FnOnce() -> R, off: impl FnOnce() -> R) -> R {
+	pub fn c_is_fn<R, const PIN: Pio>(
+		self,
+		on: impl FnOnce() -> R,
+		off: impl FnOnce() -> R
+	) -> R {
 		if (self.a & PIN._bv()) != 0 {
 			on()
 		}else {
@@ -204,7 +213,10 @@ impl PioInLevelState {
 	}
 	
 	#[inline(always)]
-	pub const fn is(self, pin: Pio) -> bool {
+	pub const fn is(
+		self,
+		pin: Pio
+	) -> bool {
 		if (self.a & pin._bv()) != 0 {
 			true
 		}else {
