@@ -8,6 +8,7 @@
 #![feature(effects)]
 #![feature(maybe_uninit_uninit_array)]
 #![feature(maybe_uninit_array_assume_init)]
+#![feature(byte_slice_trim_ascii)]
 
 #![no_std]
 pub extern crate avrd;

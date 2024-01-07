@@ -57,6 +57,7 @@ pub struct UartPortWrite<const TXPIO: Pio, const N: usize, Parity: UartParity> {
 }
 
 impl<const TXPIO: Pio, const N: usize, Parity: UartParity> UartPortWrite<TXPIO, N, Parity> {
+	#[inline] // Oddly enough, the lack of inline in a 10-byte array entails some addition of 200 bytes of the "__muldi3" function.
 	pub const fn cset_byte(mut self, a: u8) -> Self {
 		/*
 			Interestingly, the loop takes more bytes than writing it directly.

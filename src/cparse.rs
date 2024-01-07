@@ -26,3 +26,23 @@ pub const fn cstr_to_u64(str: &'static str) -> u64 {
 	num
 }
 
+pub const fn cpart_eq(a: &'static str, b: &'static str) -> bool {
+	if a.len() != b.len() {
+		return false;
+	}
+	let len = a.len();
+	
+	let abytes = a.as_bytes();
+	let bbytes = b.as_bytes();
+	
+	let mut i = 0;
+	while len > i {
+		if abytes[i] != bbytes[i] {
+			return false;
+		}
+		
+		i += 1;
+	}
+	
+	true
+}

@@ -6,6 +6,11 @@ pub struct UartRead {
 	pub(crate) data: u8,
 }
 
+/// Batch reading UART. COUNT - the number of bytes required to read, 
+/// FnMut is called every time a new byte is received, the result 
+/// determines the success of the operation.
+///
+/// (FnMut is latency sensitive).
 #[inline(never)]
 pub fn uart_read<
 	const BAUD_SLEEP_US: u64, 
@@ -50,14 +55,15 @@ pub fn uart_read<
 }
 
 /// Reading one byte from uart. 
+/// 
 /// (important, don't use it, if you need to read two or more bytes, 
 /// use another function for that) (this function is very economical 
 /// for flash memory and only).
 #[inline(never)]
 pub fn uart_oneread<
-	const BAUD_SLEEP_US: u64, 
-	const BAUD_SLEEP_NS: u64, 
-	const RXPIO: Pio, 
+	const BAUD_SLEEP_US: u64,
+	const BAUD_SLEEP_NS: u64,
+	const RXPIO: Pio,
 >() -> Option<u8> {
 	let mut result = 0u8;
 	let mut ci = 0u8;

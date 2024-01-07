@@ -19,6 +19,9 @@ use rusty_attiny13a::{uart::{serial_init, serial_read}, osccal::loadosccal_from_
 // if you want stability at a certain speed you can adjust the calibration index.
 //
 // The parity bit for UART is implemented only for TX.
+// 
+// UART_BAUD=115200 UART_PARITY=SKIP cargo run --release --example uart_rw_debug
+// (Disabling parity results in greater flash savings.)
 
 #[no_mangle]
 pub extern "C" fn main() -> ! {

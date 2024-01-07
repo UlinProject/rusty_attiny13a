@@ -1,6 +1,7 @@
 
 use crate::delay::{delay_us, delay_ns};
 
+/// Function for creating software delay for uart.
 #[inline(always)]
 pub fn sleep_inlinealways<const BAUD_SLEEP_US: u64, const BAUD_SLEEP_NS: u64>() {
 	if BAUD_SLEEP_US > 0 { // const?!

@@ -10,3 +10,4 @@ build-std = ["core"]
 [env]
 #CPU_FREQUENCY_HZ = "9_600_000"
 #UART_BAUD = "115200"
+#UART_PARITY = "EVEN"

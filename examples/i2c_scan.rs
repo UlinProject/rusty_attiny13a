@@ -7,6 +7,9 @@ use rusty_attiny13a::{uart::serial_init, osccal::loadosccal_from_eeprom, int::No
 
 // 606bytes flash
 // UART_BAUD=115200 cargo run --release --example i2c_scan
+//
+// UART_BAUD=115200 UART_PARITY=SKIP cargo run --release --example i2c_scan
+// (Disabling parity results in greater flash savings.)
 
 #[no_mangle]
 pub extern "C" fn main() -> ! {
