@@ -2,6 +2,7 @@
 
 A weekend experiment using the Rust programming language on small attiny13a microcontrollers.
 
+<img src="img/ferris.png" width="220" height="160" alt="print_logo, print_u16counter, flip"></img>
 
 <H3>attiny13a:</H3>
 
@@ -13,7 +14,7 @@ A weekend experiment using the Rust programming language on small attiny13a micr
 | eeprom | <b>64bytes</b> |
 | pio | <b>PB0-TX, PB1-RX, PB4-SDA, PB3-SCL</b> |
 
-<H2><i>UART:</i></H2>
+<H2>UART:</H2>
 
 1. Supports I/O at a specified speed using a parity bit (write-only bit).
 
@@ -21,34 +22,22 @@ A weekend experiment using the Rust programming language on small attiny13a micr
 
 4. Supports recording to multiple I/O ports simultaneously.
 
-5. Batch reading support. (no more than 18 bytes per transfer, the reason for the instability is not clear)
+5. Support for burst or single-byte reads.
 
-<b>print_hello_world:</b>
+examples: `uart`, `uart_rw`, `uart_rw_debug`, `uart_rw_onebyte`
+
+env: 
+| env_name    | def_env_value | possible_env_value | description |
+| ----------- | ------------- | --------- | ----------- |
+| UART_BAUD   | `115200`       | `460800`, `230400`, `115200`, `57600`, `9600`, `4800`, `<CUSTOM_BAUD>` | Sets UART BAUD to default. |
+| UART_PARITY | `EVEN`         | Even: (`1`, `EVEN`, `even`), Odd: (`2`, `ODD`, `odd`), Skip: (`0`, `SKIP`, `skip`) | Specifies the requirement to set the parity bit when writing. |
+
+Launch example:
 ```bash
-UART_BAUD=460800 cargo run --release --example uart
-UART_BAUD=230400 cargo run --release --example uart
-UART_BAUD=115200 cargo run --release --example uart
-UART_BAUD=57600 cargo run --release --example uart
-UART_BAUD=9600 cargo run --release --example uart
-UART_BAUD=4800 cargo run --release --example uart
-UART_BAUD=CUSTOM cargo run --release --example uart
+UART_BAUD=115200 UART_PARITY=0 cargo run --release --example uart
 ```
-<b>read_package_and_print_package:</b>
-```bash
-UART_BAUD=115200 cargo run --release --example uart_rw
-UART_BAUD=57600 cargo run --release --example uart_rw
-UART_BAUD=9600 cargo run --release --example uart_rw
-UART_BAUD=4800 cargo run --release --example uart_rw
-UART_BAUD=CUSTOM cargo run --release --example uart_rw
-```
-<i>(values above 115200 baud were not used for reading (unstable).)</i>
 
-<i>(time calibration can be specified manually in the file.)</i>
-
-<i>(values like 921600 are possible for output, but they are unstable.)</i>
-
-<H2><i>I2C:</i></H2>
-
+<H2>I2C:</H2>
 
 1. Support for the I2C bus with setting the desired frequency (it was not possible to set the exact frequency due to flash memory limitations, for example, at a frequency of 400 kHz we get +-355 kHz at the output). <i>(100khz/400khz/800khz/... also supported.)</i>
 
@@ -62,7 +51,7 @@ A classic example of i2c bus scanning.
 UART_BAUD=115200 cargo run --release --example i2c_scan
 ```
 
-<H2><i>SSD1306:</i></H2>
+<H2>SSD1306:</H2>
 
 <b>print_logo, print_u16counter, flip:</b>
 
