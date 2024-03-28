@@ -1,20 +1,37 @@
-# rusty_attiny13a
 
-A weekend experiment using the Rust programming language on small attiny13a microcontrollers.
+<div id="header" align="center">
+  <img src="img/ferris.png" alt="mit" style="height: 135px; max-width: 100%;"/>
+  
+  <b>[rusty_attiny13a]</b>
+  
+  (A weekend experiment using the Rust programming language on small attiny13a microcontrollers.)
+  </br></br>
+<div id="badges">
+  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-MIT">
+    <img src="https://github.com/UlinProject/img/blob/main/short_70/mit.png" alt="mit" style="height: 32px; max-width: 100%;"/>
+  </a>
+  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-APACHE">
+    <img src="https://github.com/UlinProject/img/blob/main/short_70/apache2.png" alt="apache2" style="height: 32px; max-width: 100%;"/>
+  </a>
+  <a href="https://github.com/denisandroid">
+    <img src="https://github.com/UlinProject/img/blob/main/short_70/uproject.png" alt="uproject" style="height: 32px; max-width: 100%;"/>
+  </a>
+</div>
+</div>
 
-<img src="img/ferris.png" width="220" height="160" alt="print_logo, print_u16counter, flip"></img>
 
-<H3>attiny13a:</H3>
+## Specifications:
 
 | name | value |
 | ---- | ----- |
+| mcu | attiny13a |
 | cpu | <b>9.6Mhz (internal, +osccal(pre-recorded in eeprom))</b> |
 | mem | <b>64bytes</b> |
 | flash | <b>1kb</b> |
 | eeprom | <b>64bytes</b> |
 | pio | <b>PB0-TX, PB1-RX, PB4-SDA, PB3-SCL</b> |
 
-<H2>UART:</H2>
+### UART:
 
 1. Supports I/O at a specified speed using a parity bit (write-only bit).
 
@@ -37,7 +54,7 @@ Launch example:
 UART_BAUD=115200 UART_PARITY=0 cargo run --release --example uart
 ```
 
-<H2>I2C:</H2>
+### I2C:
 
 1. Support for the I2C bus with setting the desired frequency (it was not possible to set the exact frequency due to flash memory limitations, for example, at a frequency of 400 kHz we get +-355 kHz at the output). <i>(100khz/400khz/800khz/... also supported.)</i>
 
@@ -51,7 +68,9 @@ A classic example of i2c bus scanning.
 UART_BAUD=115200 cargo run --release --example i2c_scan
 ```
 
-<H2>SSD1306:</H2>
+## Additional support:
+
+### SSD1306:
 
 <b>print_logo, print_u16counter, flip:</b>
 
@@ -61,11 +80,33 @@ UART_BAUD=115200 cargo run --release --example i2c_scan
 cargo run --release --example ssd1306_x32_counter
 ```
 
+## License:
 
-### License
+<div align="left">
+  <a href="https://github.com/denisandroid">
+    <img align="left" src="https://github.com/UlinProject/img/blob/main/block_450_220/uproject.png" alt="uproject" style="height: 120px; width: 250px;"/>
+  </a>
+  
+  <b>Copyright (c) 2024 #UlinProject (Denis Kotlyarov).</b>
+  </br></br></br></br></br>
+</div>
 
-Copyright 2023(+3h = 2024) #UlinProject (Denis Kotlyarov) Денис Котляров
+### 1.0, Apache License:
+<div align="left">
+  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-APACHE">
+    <img align="left" src="https://github.com/UlinProject/img/blob/main/block_450_220/apache2.png" alt="apache2" style="height: 120px; width: 250px;"/>
+  </a>
+  
+  <b>Licensed under the Apache License, Version 2.0.</b>
+  </br></br></br></br></br>
+</div>
 
-Licensed under the MIT License
-
-Licensed under the Apache License, Version 2.0
+### 2.0, MIT License:
+<div align="left">
+  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-MIT">
+    <img align="left" src="https://github.com/UlinProject/img/blob/main/block_450_220/mit.png" alt="mit" style="height: 120px; width: 250px;"/>
+  </a>
+  
+  <b>Licensed under the MIT License.</b>
+  </br></br></br></br></br>
+</div>
