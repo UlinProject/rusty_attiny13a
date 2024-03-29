@@ -7,10 +7,10 @@
   (A weekend experiment using the Rust programming language on small attiny13a microcontrollers.)
   </br></br>
 <div id="badges">
-  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-MIT">
+  <a href="./LICENSE-MIT">
     <img src="https://github.com/UlinProject/img/blob/main/short_70/mit.png" alt="mit" style="height: 32px; max-width: 100%;"/>
   </a>
-  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-APACHE">
+  <a href="./LICENSE-APACHE">
     <img src="https://github.com/UlinProject/img/blob/main/short_70/apache2.png" alt="apache2" style="height: 32px; max-width: 100%;"/>
   </a>
   <a href="https://github.com/denisandroid">
@@ -100,7 +100,7 @@ cargo run --release --example ssd1306_x32_counter
 
 ### 1.0, Apache License:
 <div align="left">
-  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-APACHE">
+  <a href="./LICENSE-APACHE">
     <img align="left" src="https://github.com/UlinProject/img/blob/main/block_450_220/apache2.png" alt="apache2" style="height: 120px; width: 250px;"/>
   </a>
   
@@ -110,7 +110,7 @@ cargo run --release --example ssd1306_x32_counter
 
 ### 2.0, MIT License:
 <div align="left">
-  <a href="https://github.com/UlinProject/rusty_attiny13a/blob/main/LICENSE-MIT">
+  <a href="./LICENSE-MIT">
     <img align="left" src="https://github.com/UlinProject/img/blob/main/block_450_220/mit.png" alt="mit" style="height: 120px; width: 250px;"/>
   </a>
   
