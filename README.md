@@ -19,7 +19,7 @@
 </div>
 </div>
 
-### Description:
+## Description:
 
 Our package provides a minimal but functional SDK for use on ultra-small microcontrollers such as the ATTiny13A. The package implements a variety of software buses, including UART and I2C, which provides the ability to connect and interact with various peripheral devices. The library also includes experimental ultra-lightweight support for output to SSD1306.
 
