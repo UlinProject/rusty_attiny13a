@@ -8,13 +8,13 @@
   </br></br>
 <div id="badges">
   <a href="./LICENSE-MIT">
-    <img src="https://github.com/UlinProject/img/blob/main/short_32/mit.png" alt="mit"/>
+    <img src="https://github.com/UlinProject/img/blob/main/short_32/mit.png?raw=true" alt="mit"/>
   </a>
   <a href="./LICENSE-APACHE">
-    <img src="https://github.com/UlinProject/img/blob/main/short_32/apache2.png" alt="apache2"/>
+    <img src="https://github.com/UlinProject/img/blob/main/short_32/apache2.png?raw=true" alt="apache2"/>
   </a>
   <a href="https://github.com/denisandroid">
-    <img src="https://github.com/UlinProject/img/blob/main/short_32/uproject.png" alt="uproject"/>
+    <img src="https://github.com/UlinProject/img/blob/main/short_32/uproject.png?raw=true" alt="uproject"/>
   </a>
 </div>
 </div>
